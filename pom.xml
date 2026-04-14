@@ -49,6 +49,15 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webmvc</artifactId>
+			<version>4.1.0-M4</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<!-- Necessário para evitar a vulnerabilidade do Jackson-core 3.1.0 que é puxado pelo Starter-->
+		<dependency>
+			<groupId>tools.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>3.1.1</version>
 		</dependency>
 
 		<!-- Dependência utilizada para mapear list como Jsonb -->
@@ -56,6 +65,19 @@
 			<groupId>io.hypersistence</groupId>
 			<artifactId>hypersistence-utils-hibernate-63</artifactId>
 			<version>3.15.2</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.mapstruct</groupId>
+			<artifactId>mapstruct</artifactId>
+			<version>1.7.0.Beta1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.swagger.core.v3</groupId>
+			<artifactId>swagger-annotations</artifactId>
+			<version>2.2.47</version>
 			<scope>compile</scope>
 		</dependency>
 
@@ -140,6 +162,12 @@
 								<path>
 									<groupId>org.projectlombok</groupId>
 									<artifactId>lombok</artifactId>
+								</path>
+
+								<path>
+									<groupId>org.mapstruct</groupId>
+									<artifactId>mapstruct-processor</artifactId>
+									<version>1.7.0.Beta1</version>
 								</path>
 							</annotationProcessorPaths>
 						</configuration>

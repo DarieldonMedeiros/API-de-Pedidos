@@ -53,11 +53,19 @@
 			<scope>compile</scope>
 		</dependency>
 
-		<!-- Necessário para evitar a vulnerabilidade do Jackson-core 3.1.0 que é puxado pelo Starter-->
+		<!-- Necessário para evitar a vulnerabilidade do Jackson-core 3.1.0 puxado pelo Starter WebMVC -->
 		<dependency>
 			<groupId>tools.jackson.core</groupId>
 			<artifactId>jackson-core</artifactId>
 			<version>3.1.1</version>
+		</dependency>
+
+		<!-- Necessário para evitar a vulnerabilidade do Tomcat Embed Core 11.0.20, puxado pelo Starter WebMVC-->
+		<dependency>
+			<groupId>org.apache.tomcat.embed</groupId>
+			<artifactId>tomcat-embed-core</artifactId>
+			<version>11.0.21</version>
+			<scope>compile</scope>
 		</dependency>
 
 		<!-- Dependência utilizada para mapear list como Jsonb -->
@@ -66,6 +74,28 @@
 			<artifactId>hypersistence-utils-hibernate-63</artifactId>
 			<version>3.15.2</version>
 			<scope>compile</scope>
+		</dependency>
+
+		<!-- Dependências utilizadas para o JSON web token-->
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-api</artifactId>
+			<version>0.13.0</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-impl</artifactId>
+			<version>0.13.0</version>
+			<scope>runtime</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>io.jsonwebtoken</groupId>
+			<artifactId>jjwt-jackson</artifactId>
+			<version>0.13.0</version>
+			<scope>runtime</scope>
 		</dependency>
 
 		<dependency>

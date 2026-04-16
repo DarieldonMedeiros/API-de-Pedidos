@@ -21,3 +21,9 @@ app:
   jwt:
     secret: minha-chave-super-secreta-256bits-aqui-troque-em-prod
     expiration: 86400000
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs

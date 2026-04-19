@@ -1,6 +1,6 @@
 package com.darieldon.pedidos.model;
 
-import io.hypersistence.utils.hibernate.type.json.JsonType;
+import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Type;
@@ -24,7 +24,8 @@ public class Order {
     @Column (name= "customer_name", nullable = false, length = 150)
     private String customerName;
 
-    @Type(JsonType.class)
+    @Type(value = JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
     private List<OrderItem> items;
 
     @Enumerated(EnumType.STRING)

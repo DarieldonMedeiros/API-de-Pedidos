@@ -10,7 +10,6 @@ import org.springframework.data.domain.Page;
 @Mapper(componentModel = "spring")
 public interface OrderMapper {
 
-    @Mapping(target = "items",  expression = "java(fromJson(order.getItems()))")
     OrderResponseDTO toDTO(Order order);
 
     @Mapping(target = "status", constant = "PENDING")

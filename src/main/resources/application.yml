@@ -3,7 +3,7 @@ server:
 
 spring:
   datasource:
-    url: postgresql://locahost:5432/pedidos_db
+    url: jdbc:postgresql://localhost:5432/pedidos_db
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver

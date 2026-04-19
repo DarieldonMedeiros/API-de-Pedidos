@@ -33,17 +33,23 @@ public class JwtFilter extends OncePerRequestFilter {
 
         final String authHeader = request.getHeader("Authorization");
 
-        // Caso 1: Sem Token
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        // Caso 1: Sem header Bearer — deixa o SecurityFilterChain decidir (ex.: 401 em rotas protegidas)
+        if (authHeader == null || !authHeader.regionMatches(true, 0, "Bearer", 0, 6)) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        final String token = authHeader.substring(7); // Remove "Bearer "
-
-        // Caso 2: Token inválido
-        if(!jwtService.isValid(token)){
+        // "Bearer" + espaço + token (RFC 6750 permite "Bearer" case-insensitive)
+        if (authHeader.length() < 8 || !Character.isWhitespace(authHeader.charAt(6))) {
             filterChain.doFilter(request, response);
+            return;
+        }
+
+        final String token = authHeader.substring(7).trim();
+
+        // Caso 2: Token inválido ou expirado — resposta explícita (evita 403 ambíguo em algumas cadeias)
+        if (!jwtService.isValid(token)) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
 

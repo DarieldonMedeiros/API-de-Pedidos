@@ -40,6 +40,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleGeneric(Exception ex) {
-        return new ErrorResponse(500, "Erro interno do servidor.", LocalDateTime.now());
+        return new ErrorResponse(500, "Erro interno do servidor." + ex, LocalDateTime.now());
     }
 }

@@ -71,7 +71,7 @@
 		<!-- Dependência utilizada para mapear list como Jsonb -->
 		<dependency>
 			<groupId>io.hypersistence</groupId>
-			<artifactId>hypersistence-utils-hibernate-63</artifactId>
+			<artifactId>hypersistence-utils-hibernate-71</artifactId>
 			<version>3.15.2</version>
 			<scope>compile</scope>
 		</dependency>
@@ -90,6 +90,13 @@
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 			<version>3.0.3</version>
 			<scope>compile</scope>
+		</dependency>
+
+		<!-- Dependência utilizada para o Spring Security Test-->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-test</artifactId>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>
@@ -185,6 +192,11 @@
 								<path>
 									<groupId>org.projectlombok</groupId>
 									<artifactId>lombok</artifactId>
+								</path>
+								<path>
+									<groupId>org.mapstruct</groupId>
+									<artifactId>mapstruct-processor</artifactId>
+									<version>1.7.0.Beta1</version>
 								</path>
 							</annotationProcessorPaths>
 						</configuration>

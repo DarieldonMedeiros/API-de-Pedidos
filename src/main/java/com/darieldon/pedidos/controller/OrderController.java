@@ -42,6 +42,8 @@ public class OrderController {
             @ApiResponse(responseCode = "401", description = "Não autenticado.")
     })
     public OrderCreatedDTO create(@Valid @RequestBody OrderRequestDTO dto, @AuthenticationPrincipal User user) {
+        System.out.println("USER: " + user); // ← adicione temporariamente
+        System.out.println("USER ID: " + (user != null ? user.getId() : "NULL"));
         return service.create(dto, user.getId());
     }
 
@@ -94,7 +96,7 @@ public class OrderController {
     })
     public Map<String, String> delete(@PathVariable Long id) {
         service.deleteById(id);
-        return Map.of("message", "Status deletado com sucesso.");
+        return Map.of("message", "Pedido com o id: " + id + " deletado com sucesso.");
     }
 
 }

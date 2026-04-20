@@ -37,7 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class OrderControllerTest {
+class OrderControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -103,6 +103,23 @@ public class OrderControllerTest {
 
             verify(orderService, times(1))
                     .create(any(OrderRequestDTO.class), any(Long.class));
+        }
+
+        @Test
+        @DisplayName("Deve passar o userId do usuário autenticado para o service")
+        void shouldPassAuthenticatedUserIdToService() throws Exception {
+
+            when(orderService.create(any(OrderRequestDTO.class), eq(10L)))
+                    .thenReturn(new OrderCreatedDTO(1L, "Pedido criado com sucesso."));
+
+            mockMvc.perform(post("/orders")
+                    .with(csrf())
+                    .with(user(mockUser()))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(requestDTO())))
+                    .andExpect(status().isCreated());
+
+            verify(orderService).create(any(OrderRequestDTO.class), eq(10L));
         }
     }
 

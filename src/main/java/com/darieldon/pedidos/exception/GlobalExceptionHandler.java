@@ -1,6 +1,7 @@
 package com.darieldon.pedidos.exception;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -15,15 +16,15 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleNotFound(ResourceNotFoundException ex) {
-        return new ErrorResponse(404, ex.getMessage(),
+    public ErrorResponse handleNotFound(ResourceNotFoundException exception) {
+        return new ErrorResponse(404, exception.getMessage(),
                 LocalDateTime.now());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ErrorResponse handleValidation(MethodArgumentNotValidException ex) {
-        String msg = ex.getBindingResult().getFieldErrors()
+    public ErrorResponse handleValidation(MethodArgumentNotValidException exception) {
+        String msg = exception.getBindingResult().getFieldErrors()
                 .stream()
                 .map(e -> e.getField() + ": " + e.getDefaultMessage())
                 .collect(Collectors.joining(", "));
@@ -33,13 +34,19 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AccessDeniedException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ErrorResponse handleForbidden(AccessDeniedException ex) {
-        return new ErrorResponse(403, "Acesso negado", LocalDateTime.now());
+    public ErrorResponse handleForbidden(AccessDeniedException exception) {
+        return new ErrorResponse(403, "Acesso negado: " + exception, LocalDateTime.now());
     }
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleGeneric(Exception ex) {
-        return new ErrorResponse(500, "Erro interno do servidor." + ex, LocalDateTime.now());
+    public ErrorResponse handleGeneric(Exception exception) {
+            return new ErrorResponse(500, "Erro interno do servidor. " + exception, LocalDateTime.now());
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ErrorResponse handleBadCredentials(BadCredentialsException exception) {
+        return new ErrorResponse(401, "Credenciais inválidas: " + exception,  LocalDateTime.now());
     }
 }

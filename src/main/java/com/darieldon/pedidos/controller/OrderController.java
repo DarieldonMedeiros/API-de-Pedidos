@@ -42,8 +42,6 @@ public class OrderController {
             @ApiResponse(responseCode = "401", description = "Não autenticado.")
     })
     public OrderCreatedDTO create(@Valid @RequestBody OrderRequestDTO dto, @AuthenticationPrincipal User user) {
-        System.out.println("USER: " + user); // ← adicione temporariamente
-        System.out.println("USER ID: " + (user != null ? user.getId() : "NULL"));
         return service.create(dto, user.getId());
     }
 

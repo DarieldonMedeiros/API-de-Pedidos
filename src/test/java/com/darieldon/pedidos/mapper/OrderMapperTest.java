@@ -3,6 +3,7 @@ package com.darieldon.pedidos.mapper;
 import com.darieldon.pedidos.dto.request.OrderItemDTO;
 import com.darieldon.pedidos.dto.request.OrderRequestDTO;
 import com.darieldon.pedidos.dto.response.OrderResponseDTO;
+import com.darieldon.pedidos.model.ClientType;
 import com.darieldon.pedidos.model.Order;
 import com.darieldon.pedidos.model.OrderItem;
 import com.darieldon.pedidos.model.OrderStatus;
@@ -31,7 +32,7 @@ class OrderMapperTest {
     }
 
     private OrderRequestDTO requestDTO() {
-        return new OrderRequestDTO("Darieldon Medeiros", List.of(itemDTO()));
+        return new OrderRequestDTO("Darieldon Medeiros", ClientType.NORMAL, List.of(itemDTO()));
     }
 
     private Order orderEntity(){
@@ -82,7 +83,7 @@ class OrderMapperTest {
         @DisplayName("Deve retornar o objeto apenas com o UserId e o CustomerName quando os itens são nulos")
         void shouldMapRequestToEntityWithNullItems() {
 
-            OrderRequestDTO requestDTO = new OrderRequestDTO("Darieldon Medeiros", null);
+            OrderRequestDTO requestDTO = new OrderRequestDTO("Darieldon Medeiros", ClientType.NORMAL,null);
 
             Order result = mapper.toEntity(requestDTO, 10L);
 
@@ -97,7 +98,7 @@ class OrderMapperTest {
         void shouldReturnEmptyListWhenDTOItemsIsEmpty() {
 
             OrderRequestDTO requestDTO = new OrderRequestDTO(
-                    "Darieldon Medeiros", emptyList());
+                    "Darieldon Medeiros", ClientType.NORMAL, emptyList());
 
             Order result = mapper.toEntity(requestDTO, 10L);
 
@@ -111,7 +112,7 @@ class OrderMapperTest {
             List<OrderItemDTO> nullItems = new ArrayList<>();
             nullItems.add(null);
 
-            OrderRequestDTO requestDTO = new OrderRequestDTO("Darieldon Medeiros", nullItems);
+            OrderRequestDTO requestDTO = new OrderRequestDTO("Darieldon Medeiros", ClientType.NORMAL, nullItems);
 
             Order result = mapper.toEntity(requestDTO, 10L);
 

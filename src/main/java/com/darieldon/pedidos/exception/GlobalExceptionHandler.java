@@ -1,6 +1,7 @@
 package com.darieldon.pedidos.exception;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -48,5 +49,19 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public ErrorResponse handleBadCredentials(BadCredentialsException exception) {
         return new ErrorResponse(401, "Credenciais inválidas: " + exception,  LocalDateTime.now());
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleBadRequest(BadRequestException exception) {
+
+        return new ErrorResponse(400, "Cliente Inválido: " + exception, LocalDateTime.now());
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleHttpMessageNotReadable(HttpMessageNotReadableException exception) {
+
+        return new ErrorResponse(400, "Verifique o valor de ClientType: " + exception, LocalDateTime.now());
     }
 }

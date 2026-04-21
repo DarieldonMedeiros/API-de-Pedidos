@@ -5,16 +5,21 @@ import com.darieldon.pedidos.dto.request.OrderRequestDTO;
 import com.darieldon.pedidos.dto.request.UpdateStatusDTO;
 import com.darieldon.pedidos.dto.response.OrderCreatedDTO;
 import com.darieldon.pedidos.dto.response.OrderResponseDTO;
+import com.darieldon.pedidos.exception.BadRequestException;
 import com.darieldon.pedidos.exception.ResourceNotFoundException;
 import com.darieldon.pedidos.mapper.OrderMapper;
+import com.darieldon.pedidos.model.ClientType;
 import com.darieldon.pedidos.model.Order;
 import com.darieldon.pedidos.model.OrderStatus;
 import com.darieldon.pedidos.repository.OrderRepository;
+import com.darieldon.pedidos.strategy.DiscountStrategy;
+import com.darieldon.pedidos.strategy.NormalDiscount;
+import com.darieldon.pedidos.strategy.VipDiscount;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
@@ -25,6 +30,7 @@ import org.springframework.data.domain.Pageable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -40,17 +46,29 @@ class OrderServiceTest {
     @Mock
     private OrderMapper mapper;
 
-    @InjectMocks
     private OrderServiceImpl service;
 
     // Dados que serão reutilizados nos testes
+
+    @BeforeEach
+    void setUp() {
+        Map<String, DiscountStrategy> discountStrategies = Map.of(
+                "NORMAL", new NormalDiscount(),
+                "VIP", new VipDiscount()
+        );
+        service = new OrderServiceImpl(repository, mapper, discountStrategies);
+    }
 
     private OrderItemDTO itemDTO() {
         return new OrderItemDTO(1L, 2, new BigDecimal("49.95"));
     }
 
     private OrderRequestDTO requestDTO() {
-        return new OrderRequestDTO("Darieldon Medeiros", List.of(itemDTO()));
+        return new OrderRequestDTO("Darieldon Medeiros", ClientType.NORMAL, List.of(itemDTO()));
+    }
+
+    private OrderRequestDTO vipRequestDTO() {
+        return new OrderRequestDTO("Darieldon Medeiros", ClientType.VIP, List.of(itemDTO()));
     }
 
     private Order orderEntity(){
@@ -79,8 +97,8 @@ class OrderServiceTest {
     class Create {
 
         @Test
-        @DisplayName("Deve criar pedido e calcular total corretamente")
-        void shouldCreateOrderWithCorrectTotal(){
+        @DisplayName("Deve criar pedido e calcular total corretamente para cliente NORMAL")
+        void shouldCreateOrderWithCorrectTotalForNormalClient(){
             Order entity = orderEntity();
             when(mapper.toEntity(any(OrderRequestDTO.class), eq(10L))).thenReturn(entity);
             when(repository.save(any(Order.class))).thenReturn(entity);
@@ -93,8 +111,8 @@ class OrderServiceTest {
         }
 
         @Test
-        @DisplayName("Deve calcular total como soma de quantity * unitPrice")
-        void shouldCalculateTotalCorrectly(){
+        @DisplayName("Deve calcular total como soma de quantity * unitPrice para cliente NORMAL")
+        void shouldCalculateTotalCorrectlyForNormalClient(){
             Order entity = orderEntity();
             when(mapper.toEntity(any(), any())).thenReturn(entity);
             when(repository.save(any())).thenAnswer(invocation -> {
@@ -110,10 +128,72 @@ class OrderServiceTest {
         }
 
         @Test
+        @DisplayName("Deve aplicar desconto de 10% para cliente VIP sobre o subtotal")
+        void shouldApplyTenPercentDiscountForVipClient() {
+            Order entity = orderEntity();
+            when(mapper.toEntity(any(), any())).thenReturn(entity);
+            when(repository.save(any())).thenAnswer(invocation -> {
+                Order saved = invocation.getArgument(0);
+                assertThat(saved.getTotalAmount()).isEqualTo(new BigDecimal("89.91"));
+                return saved;
+            });
+
+            service.create(vipRequestDTO(), 10L);
+
+            verify(repository).save(any(Order.class));
+        }
+
+        @Test
+        @DisplayName("Deve arredondar total com HALF_UP em duas casas decimais após o desconto VIP")
+        void shouldRoundVIPTotalToTwoDecimalPlacesHalfUp() {
+            OrderRequestDTO requestDTO = vipRequestDTO();
+            Order entity = orderEntity();
+
+            when(mapper.toEntity(any(), any())).thenReturn(entity);
+            when(repository.save(any(Order.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+            service.create(requestDTO, 1L);
+
+            verify(repository).save(argThat(o -> o.getTotalAmount().compareTo(new BigDecimal("89.91")) == 0));
+        }
+
+        @Test
+        @DisplayName("Deve delegar o subtotal à DiscountStrategy registrada para o tipo VIP")
+        void shouldDelegateToVipDiscountStrategy() {
+            DiscountStrategy vipStrategy = mock(DiscountStrategy.class);
+            when(vipStrategy.calculate(argThat(b -> b.compareTo(new BigDecimal("99.90")) == 0))).thenReturn(new BigDecimal("89.91"));
+
+            service = new OrderServiceImpl(repository, mapper, Map.of(
+                    "NORMAL", new NormalDiscount(),
+                    "VIP",  vipStrategy
+            ));
+
+            Order entity = orderEntity();
+            when(mapper.toEntity(any(), any())).thenReturn(entity);
+            when(repository.save(any())).thenReturn(entity);
+
+            service.create(vipRequestDTO(), 10L);
+
+            verify(vipStrategy).calculate(argThat(b -> b.compareTo(new BigDecimal("99.90")) == 0));
+        }
+
+        @Test
+        @DisplayName("Deve lançar BadRequestException quando não existir strategy para o tipo de cliente")
+        void shouldThrowWhenDiscountStrategyIsMissingForClientType(){
+            service = new OrderServiceImpl(repository, mapper, Map.of(
+                    "NORMAL", new NormalDiscount()
+            ));
+
+            assertThatThrownBy(() -> service.create(vipRequestDTO(), 10L))
+                    .isInstanceOf(BadRequestException.class)
+                    .hasMessageContaining("VIP");
+        }
+
+        @Test
         @DisplayName("Deve calcular total zero quando lista dos items é vazia")
         void shouldCalculateZeroTotalForEmptyList(){
             OrderRequestDTO emptyRequest = new OrderRequestDTO(
-                    "Rebeca Castro", List.of()
+                    "Rebeca Castro", ClientType.NORMAL, List.of()
             );
             Order entity = Order.builder().id(2L)
                     .totalAmount(BigDecimal.ZERO).build();

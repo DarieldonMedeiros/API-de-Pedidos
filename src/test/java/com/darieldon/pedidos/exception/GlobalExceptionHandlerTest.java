@@ -103,4 +103,16 @@ class GlobalExceptionHandlerTest {
         assertThat(response.status()).isEqualTo(401);
         assertThat(response.message()).isEqualTo("Credenciais inválidas: " + exception);
     }
+
+    @Test
+    @DisplayName("Deve tratar BadRequestException e retornar 400")
+    void shouldHandleBadRequestException() {
+        BadRequestException exception = mock(BadRequestException.class);
+
+        ErrorResponse response = handler.handleBadRequest(exception);
+
+        assertThat(response.status()).isEqualTo(400);
+        assertThat(response.message()).isEqualTo("Cliente Inválido: " + exception);
+        assertThat(response.timestamp()).isNotNull();
+    }
 }

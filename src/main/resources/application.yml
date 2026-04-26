@@ -3,10 +3,18 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/pedidos_db
-    username: postgres
-    password: postgres
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/orders_db}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+  cache:
+    type: redis
+    redis:
+      time-to-live: 600000 # 10 minutos
 
   jpa:
     hibernate:
@@ -14,13 +22,13 @@ spring:
     show-sql: true
     properties:
       hibernate:
-        formate_sql: true
+        format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
 app:
   jwt:
-    secret: minha-chave-super-secreta-256bits-aqui-troque-em-prod
-    expiration: 86400000
+    secret: ${APP_JWT_SECRET:minha-chave-super-secreta-256bits-aqui-troque-em-prod}
+    expiration: ${APP_JWT_EXPIRATION:86400000}
 
 springdoc:
   swagger-ui:

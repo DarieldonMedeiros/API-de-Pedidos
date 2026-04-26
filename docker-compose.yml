@@ -2,17 +2,40 @@ services:
   db:
     image: postgres:16
     environment:
-      POSTGRES_DB: pedidos_db
+      POSTGRES_DB: orders_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
       - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d pedidos_db"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d orders_db"]
       interval: 5s
       timeout: 5s
       retries: 10
       start_period: 10s
+
+  redis:
+    image: redis:7-alpine
+    container_name: orders-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis-insight:
+    image: redis/redisinsight:3.4
+    container_name: redis-insight
+    ports:
+      - "5540:5540"
+    depends_on:
+      - redis
 
   app:
     build: .
@@ -20,10 +43,17 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/pedidos_db
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_PROFILES_ACTIVE: docker
+      DB_URL: jdbc:postgresql://db:5432/orders_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      APP_JWT_SECRET: minha-chave-super-secreta-256bits-aqui-troque-em-prod
+      APP_JWT_EXPIRATION: 86400000
 
   pgAdmin:
     image: dpage/pgadmin4:9.14.0
@@ -35,3 +65,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
+
+volumes:
+  postgres-data:
+  redis-data:

@@ -12,6 +12,8 @@ import com.darieldon.pedidos.model.OrderStatus;
 import com.darieldon.pedidos.repository.OrderRepository;
 import com.darieldon.pedidos.strategy.DiscountStrategy;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -61,12 +63,14 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Cacheable(value = "orders", key = "#id", unless = "#result == null")
     public OrderResponseDTO findById(Long id){
         Order order = findOrThrow(id);
         return mapper.toDTO(order);
     }
 
     @Override
+    @CacheEvict(value = "orders", key = "#id")
     public void updateStatus(Long id, UpdateStatusDTO dto){
         Order order = findOrThrow(id);
         order.setStatus(dto.status());
@@ -74,6 +78,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @CacheEvict(value = "orders", key = "#id")
     public void deleteById(Long id){
         Order order = findOrThrow(id);
         order.setDeletedAt(LocalDateTime.now());

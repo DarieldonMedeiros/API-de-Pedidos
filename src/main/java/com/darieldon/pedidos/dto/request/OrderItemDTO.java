@@ -4,6 +4,7 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 public record OrderItemDTO(
@@ -16,4 +17,4 @@ public record OrderItemDTO(
         @NotNull
         @DecimalMin("0.01")
         BigDecimal unitPrice
-) {}
+) implements Serializable {}

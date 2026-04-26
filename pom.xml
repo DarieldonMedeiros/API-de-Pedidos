@@ -96,6 +96,7 @@
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-test</artifactId>
+			<version>7.1.0-RC1</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -106,6 +107,30 @@
 			<version>7.0.7</version>
 			<scope>compile</scope>
 		</dependency>
+
+			<!-- Dependências utilizadas para retirar a vulnerabilidade do Spring Security Test através do Spring Security Web -->
+			<dependency>
+				<groupId>org.springframework.security</groupId>
+				<artifactId>spring-security-web</artifactId>
+				<version>7.1.0-RC1</version>
+				<scope>compile</scope>
+			</dependency>
+
+			<!-- Dependências utilizadas para retirar as vulnerabilidades do Spring Security Test através do Spring Security Config-->
+			<dependency>
+				<groupId>org.springframework.security</groupId>
+				<artifactId>spring-security-config</artifactId>
+				<version>7.1.0-RC1</version>
+				<scope>compile</scope>
+			</dependency>
+
+			<!-- Dependências utilizadas para retirar as vulnerabilidades do Spring Security Test através do Spring Security Core-->
+			<dependency>
+				<groupId>org.springframework.security</groupId>
+				<artifactId>spring-security-core</artifactId>
+				<version>7.1.0-RC1</version>
+				<scope>compile</scope>
+			</dependency>
 
 		<dependency>
 			<groupId>org.springframework</groupId>
